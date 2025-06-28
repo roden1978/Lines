@@ -37,7 +37,7 @@ public class Button : Component, IButton
     protected Color _highlightedColor;
     protected Color _pressedColor;
     protected float _transparent;
-    protected float _notInteractableTransparent = 0;
+    protected float _notInteractableTransparent;
     private Rectangle _interactableArea;
 
     public Button(Sprite sprite, Color normalColor, Color highlightedColor, Color pressedColor, float transparent = 1.0f)
@@ -46,22 +46,15 @@ public class Button : Component, IButton
         NormalColor = normalColor;
         HighlightedColor = highlightedColor;
         PressedColor = pressedColor;
-        _currentColor = NormalColor;
+        _currentColor = normalColor;
         _highlightedColor = highlightedColor;
         _pressedColor = pressedColor;
         _transparent = transparent;
+        _notInteractableTransparent = .5f;
     }
 
-    public Button(Sprite sprite)
+    public Button(Sprite sprite) : this(sprite, Color.White, Color.Gray, Color.White)
     {
-        Sprite = sprite;
-        NormalColor = Color.White;
-        HighlightedColor = Color.Gray;
-        PressedColor = Color.White;
-        _currentColor = NormalColor;
-        _highlightedColor = HighlightedColor;
-        _pressedColor = PressedColor;
-        _transparent = 1.0f;
     }
 
     public virtual void Draw(SpriteBatch spriteBatch)

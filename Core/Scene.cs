@@ -23,7 +23,7 @@ public class Scene
         Name = name;
         _canvas = canvas;
 
-        _spriteBatchEffect = new(graphicsDeviceProvider.GraphicsDevice)
+        _spriteBatchEffect = new BasicEffect(graphicsDeviceProvider.GraphicsDevice)
         {
             TextureEnabled = true,
             View = Matrix.CreateLookAt(_cameraPosition, _cameraPosition + Vector3.Forward, Vector3.Up),
@@ -77,12 +77,11 @@ public class Scene
             gameObject.Scene = null;
             _gameObjects.Remove(gameObject);
         }
-        if (_canvas.Contains(gameObject))
-        {
-            gameObject.Canvas = null;
-            gameObject.Scene = null;
-            _canvas.Remove(gameObject);
-        }
+
+        if (false == _canvas.Contains(gameObject)) return;
+        gameObject.Canvas = null;
+        gameObject.Scene = null;
+        _canvas.Remove(gameObject);
     }
 
     public void Update(GameTime gameTime)

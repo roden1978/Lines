@@ -8,9 +8,9 @@ public class GameObject : IUpdate, IStart, IDestroy
 {
     public event Action<int> ChildrensCountHasChanged;
     public bool Active { get; private set; } = true;
-    public bool Started { get; private set; } = false;
+    public bool Started { get; private set; }
     public Transform2D Transform => _transform;
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; }
     public Tags Tag { get; set; }
     public int Layer { get; set; }
     public int ComponentCount => ComponentsContainer.Count;
@@ -28,40 +28,25 @@ public class GameObject : IUpdate, IStart, IDestroy
 
     public float DrawRotation => Transform.Parent != null ? Transform.Rotation + Transform.Parent.Rotation : Transform.Rotation;
 
-    public Vector2 DrawScale => Transform.Parent != null ? Transform.Scale + Transform.Parent.Scale - Vector2.One : Transform.Scale;
+    public Vector2 DrawScale => Transform.Parent != null ? Transform.Scale * Transform.Parent.Scale : Transform.Scale;
 
     public GameObject()
     {
         Name = "GameObject";
         _transform.Gameobject = this;
     }
-    public GameObject(string name)
+    public GameObject(string name) : this() => Name = name;
+    public GameObject(string name, Transform2D transform) : this(name)
     {
-        Name = name;
-        _transform.Gameobject = this;
-    }
-
-    public GameObject(string name, Transform2D transform)
-    {
-        Name = name;
         _transform = transform;
         _transform.Gameobject = this;
     }
-
-    public GameObject(string name, Transform2D transform, Transform2D parent)
-    {
-        Name = name;
-        _transform = transform;
-        _transform.Parent = parent;
-        _transform.Gameobject = this;
-    }
-    public GameObject(string name, Vector2 position, float rotation, Vector2 scale)
+    public GameObject(string name, Transform2D transform, Transform2D parent) : this(name, transform) => _transform.Parent = parent;
+    public GameObject(string name, Vector2 position, float rotation, Vector2 scale) : this(name)
     {
         _transform.Position = position;
         _transform.Rotation = rotation;
         _transform.Scale = scale;
-        _transform.Gameobject = this;
-        Name = name;
     }
     public void Start()
     {
@@ -73,13 +58,15 @@ public class GameObject : IUpdate, IStart, IDestroy
 
     private void StartBehaviour()
     {
-        foreach (KeyValuePair<Type, CollisionBehaviour> component in CollisionBehaviourContainer.Repository.Where(x => x.Value.Started == false))
+        foreach (KeyValuePair<Type, CollisionBehaviour> component in CollisionBehaviourContainer.Repository.Where(x =>
+                     x.Value.Started == false))
             component.Value.Start();
     }
 
     private void StartComponents()
     {
-        foreach (KeyValuePair<Type, Component> component in ComponentsContainer.Repository.Where(x => x.Value.Started == false))
+        foreach (KeyValuePair<Type, Component> component in ComponentsContainer.Repository.Where(x =>
+                     x.Value.Started == false))
             component.Value.Start();
     }
 
@@ -102,15 +89,11 @@ public class GameObject : IUpdate, IStart, IDestroy
         if (component is IUpdate update)
             _updateableComponents.Add(update);
 
-        switch (component)
-        {
-            case IDraw draw:
-                _drawableComponents.Add(draw);
-                break;
-            case CollisionBehaviour collisionBehaviour:
-                CollisionBehaviourContainer.Register(collisionBehaviour);
-                break;
-        }
+        if (component is IDraw draw)
+            _drawableComponents.Add(draw);
+        
+        if (component is CollisionBehaviour collisionBehaviour) 
+            CollisionBehaviourContainer.Register(collisionBehaviour);
 
         component.gameObject = this;
 
