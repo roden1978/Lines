@@ -1,6 +1,6 @@
 using System;
 
-public class AnimationTransition : IAnimationTransition, IDestory
+public class AnimationTransition : IAnimationTransition, IDestroy
 {
     public Func<bool> Condition { get; private set;}
     public string To { get; }

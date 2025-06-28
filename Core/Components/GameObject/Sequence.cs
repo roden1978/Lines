@@ -1,5 +1,5 @@
 
-public class Sequence : IDestory
+public class Sequence : IDestroy
 {
     public int Length => _spriteOrder.Length;
     private SpriteOrder _spriteOrder;

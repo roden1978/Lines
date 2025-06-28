@@ -1,6 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-public class Sprite : IDestory
+public class Sprite : IDestroy
 {
     public Texture2D Image { get; private set;}
     public Rectangle Rect { get; }

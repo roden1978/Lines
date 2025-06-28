@@ -1,4 +1,4 @@
-public class Animation : IDestory
+public class Animation : IDestroy
 {
     public bool Loop { get; set; }
     public string Name { get; set; }

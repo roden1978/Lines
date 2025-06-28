@@ -36,13 +36,13 @@ public class GridLayoutGroup : Component, IStart, ICanvasComponent
     public override void Start()
     {
         gameObject.Canvas.UIObjectsCountHasChanged += OnUIObjectsCountHasChanged;
-        _itemsCount = gameObject.ChildsCount;
+        _itemsCount = gameObject.ChildrensCount;
         _items = gameObject.Transform.Childrens;
     }
 
     private void OnUIObjectsCountHasChanged()
     {
-        _itemsCount = gameObject.ChildsCount;
+        _itemsCount = gameObject.ChildrensCount;
         UpdateItemsPositions();
     }
 

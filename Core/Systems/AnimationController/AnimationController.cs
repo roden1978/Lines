@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 
-public class AnimationController : IDestory
+public class AnimationController : IDestroy
 {
     public Animation CurrentAnimation { get; private set; }
     public bool Active { get; private set; } = true;

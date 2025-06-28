@@ -1,4 +1,4 @@
-public class Component : IStart, IDestory
+public class Component : IStart, IDestroy
 {
     public bool Active { get; private set; } = true;
     public GameObject gameObject { get; set; }

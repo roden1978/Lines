@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-public class GameObject : IUpdate, IStart, IDestory
+public class GameObject : IUpdate, IStart, IDestroy
 {
-    public event Action<int> ChildsCountHasChanged;
+    public event Action<int> ChildrensCountHasChanged;
     public bool Active { get; private set; } = true;
     public bool Started { get; private set; } = false;
     public Transform2D Transform => _transform;
@@ -18,25 +18,17 @@ public class GameObject : IUpdate, IStart, IDestory
     public Container<Component> ComponentsContainer { get; } = new();
     public Scene Scene { get; set; }
     public Canvas Canvas {get; set;}
-    public int ChildsCount => _childsCount;
+    public int ChildrensCount => _childrensCount;
     private readonly List<IUpdate> _updateableComponents = [];
     private readonly List<IDraw> _drawableComponents = [];
     private readonly Transform2D _transform = new();
-    private int _childsCount;
+    private int _childrensCount;
 
-    public Vector2 DrawPosition
-    {
-        get => Transform.Parent != null ? Transform.Position + Transform.Parent.AbsolutePosition : Transform.Position;
-    }
-    public float DrawRotation
-    {
-        get => Transform.Parent != null ? Transform.Rotation + Transform.Parent.Rotation : Transform.Rotation;
-    }
+    public Vector2 DrawPosition => Transform.Parent != null ? Transform.Position + Transform.Parent.AbsolutePosition : Transform.Position;
 
-    public Vector2 DrawScale
-    {
-        get => Transform.Parent != null ? Transform.Scale + Transform.Parent.Scale - Vector2.One : Transform.Scale;
-    }
+    public float DrawRotation => Transform.Parent != null ? Transform.Rotation + Transform.Parent.Rotation : Transform.Rotation;
+
+    public Vector2 DrawScale => Transform.Parent != null ? Transform.Scale + Transform.Parent.Scale - Vector2.One : Transform.Scale;
 
     public GameObject()
     {
@@ -81,13 +73,13 @@ public class GameObject : IUpdate, IStart, IDestory
 
     private void StartBehaviour()
     {
-        foreach (var component in CollisionBehaviourContainer.Repository.Where(x => x.Value.Started == false))
+        foreach (KeyValuePair<Type, CollisionBehaviour> component in CollisionBehaviourContainer.Repository.Where(x => x.Value.Started == false))
             component.Value.Start();
     }
 
     private void StartComponents()
     {
-        foreach (var component in ComponentsContainer.Repository.Where(x => x.Value.Started == false))
+        foreach (KeyValuePair<Type, Component> component in ComponentsContainer.Repository.Where(x => x.Value.Started == false))
             component.Value.Start();
     }
 
@@ -103,18 +95,22 @@ public class GameObject : IUpdate, IStart, IDestory
         if (false == Active) return;
 
         for (int i = 0; i < _drawableComponents.Count; i++)
-            _drawableComponents[i].Draw(spriteBatch);
+            _drawableComponents[i]?.Draw(spriteBatch);
     }
     public GameObject AddComponent<T>(T component) where T : Component
     {
-        if (component is IUpdate)
-            _updateableComponents.Add(component as IUpdate);
+        if (component is IUpdate update)
+            _updateableComponents.Add(update);
 
-        if (component is IDraw)
-            _drawableComponents.Add(component as IDraw);
-
-        if (component is CollisionBehaviour)
-            CollisionBehaviourContainer.Register(component as CollisionBehaviour);
+        switch (component)
+        {
+            case IDraw draw:
+                _drawableComponents.Add(draw);
+                break;
+            case CollisionBehaviour collisionBehaviour:
+                CollisionBehaviourContainer.Register(collisionBehaviour);
+                break;
+        }
 
         component.gameObject = this;
 
@@ -130,29 +126,26 @@ public class GameObject : IUpdate, IStart, IDestory
 
     public T GetComponent<T>() where T : Component
     {
-        if (ComponentsContainer.TryGetComponent<T>(out var component))
-            return (T)component;
+        if (ComponentsContainer.TryGetComponent(out T component))
+            return component;
 
         return null;
     }
     public bool TryGetComponent<T>(out T component) where T : Component
     {
-        component = default;
+        component = null;
 
-        if (ComponentsContainer.TryGetComponent<T>(out var c))
-        {
-            component = c;
-            return true;
-        }
+        if (!ComponentsContainer.TryGetComponent(out T c)) return false;
+        component = c;
+        return true;
 
-        return false;
     }
 
     public override string ToString() => Name;
 
     public void SetActive(bool value)
     {
-        foreach (var children in Transform.Childrens)
+        foreach (Transform2D children in Transform.Childrens)
             children.Gameobject.SetActive(value);
 
         foreach (IUpdate component in _updateableComponents)
@@ -168,17 +161,15 @@ public class GameObject : IUpdate, IStart, IDestory
 
     public void AddChild()
     {
-        _childsCount++;
-        ChildsCountHasChanged?.Invoke(_childsCount);
+        _childrensCount++;
+        ChildrensCountHasChanged?.Invoke(_childrensCount);
     }
 
     public void RemoveChild()
     {
-        if (_childsCount > 0)
-        {
-            _childsCount--;
-            ChildsCountHasChanged?.Invoke(_childsCount);
-        }
+        if (_childrensCount <= 0) return;
+        _childrensCount--;
+        ChildrensCountHasChanged?.Invoke(_childrensCount);
     }
 
     public void SetStarted(bool value) => Started = value;
@@ -195,7 +186,7 @@ public class GameObject : IUpdate, IStart, IDestory
 
     private void CleanupBehaviours()
     {
-        foreach (var behaviour in CollisionBehaviourContainer.Repository.Values)
+        foreach (CollisionBehaviour behaviour in CollisionBehaviourContainer.Repository.Values)
             behaviour.Destroy();
 
         CollisionBehaviourContainer.Cleanup();

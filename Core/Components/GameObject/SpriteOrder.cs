@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-public class SpriteOrder : IDestory
+public class SpriteOrder : IDestroy
 {
     public Sprite[] Sprites => _spriteOrder; 
     private Texture2D _texture;

@@ -16,12 +16,8 @@ public class Canvas
     private readonly List<IDraw> _drawableComponents = [];
     private readonly MouseEventSystem _mouseEventSystem;
     public Canvas(string name, int width, int height)
+        : this(name, 0, 0, width, height)
     {
-        CanvasRect = new Rectangle(0, 0, width, height);
-        Name = name;
-        _mouseEventSystem = new MouseEventSystem();
-        _mouseEventSystem.PositionUpdate += OnPositionUpdate;
-        _mouseEventSystem.ClickUpdate += OnClickUpdate;
     }
 
     public Canvas(string name, int x, int y, int width, int height)
