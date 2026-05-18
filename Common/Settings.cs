@@ -10,6 +10,6 @@ public static class Settings
     public const int TilesWidth = 64;
     public const int TilesHeight = 1;
     public const string GameName = "LNS";
-    public static string PlayerName => Environment.UserName;
+    public static string PlayerName => "Player";
     public const int LeaderboardCapacity = 5;
 }
